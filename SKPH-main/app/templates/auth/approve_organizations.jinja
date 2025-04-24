@@ -1,0 +1,67 @@
+{% extends "base.jinja" %}
+
+{% block title %}{{ _("Approve Organizations and Authorities") }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>{{ _("Approve Organizations and Authorities") }}</h2>
+
+  {% if organizations or authorities %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>{{ _("Name") }}</th>
+        <th>{{ _("Email") }}</th>
+        <th>{{ _("Description") }}</th>
+        <th>{{ _("Actions") }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {# Loop through organizations first #}
+      {% for organization in organizations %}
+      <tr>
+        <td>{{ organization.organization_name }}</td>
+        <td>{{ organization.user.email }}</td>
+        <td>{{ organization.description }}</td>
+        <td>
+          <form action="{{ url_for('auth.manage_users') }}" method="POST" style="display:inline;">
+            <input type="hidden" name="user_id" value="{{ organization.user.id }}">
+            <input type="hidden" name="user_type" value="organization">
+            {% if organization.approved %}
+            <button type="submit" name="action" value="disapprove" class="btn btn-warning">{{ _("Disapprove")
+              }}</button>
+            {% else %}
+            <button type="submit" name="action" value="approve" class="btn btn-success">{{ _("Approve") }}</button>
+            {% endif %}
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+
+      {# Loop through authorities #}
+      {% for authority in authorities %}
+      <tr>
+        <td>{{ authority.name }}</td>
+        <td>{{ authority.user.email }}</td>
+        <td>{{ authority.description }}</td>
+        <td>
+          <form action="{{ url_for('auth.manage_users') }}" method="POST" style="display:inline;">
+            <input type="hidden" name="user_id" value="{{ authority.user.id }}">
+            <input type="hidden" name="user_type" value="authorities">
+            {% if authority.approved %}
+            <button type="submit" name="action" value="disapprove" class="btn btn-warning">{{ _("Disapprove")
+              }}</button>
+            {% else %}
+            <button type="submit" name="action" value="approve" class="btn btn-success">{{ _("Approve") }}</button>
+            {% endif %}
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>{{ _("No organizations or authorities pending approval.") }}</p>
+  {% endif %}
+</div>
+{% endblock %}

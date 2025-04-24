@@ -1,0 +1,262 @@
+
+
+
+{% extends "base.jinja" %}
+
+
+{% block title %}{{ _("Tracking and managing resources module") }}{% endblock %}
+
+{% block script %}
+<script src="../../static/supply_chain/js/view.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+  <h1>{{ _("Tracking and managing resources module") }}</h1>
+  <a href="{{ url_for('home') }}">
+    <input type="button" class="btn btn-dark btn-lg" id="back-button" value="Back"> 
+  </a>
+  <div class="btn-group" role="group">
+    <a  class="btn btn-primary btn-lg" id="donated-items-button"  onclick="changeView(VIEW.AVALIABLE_RESOURCES)">{{_("Avaliable resources")}}</a>
+    <a  class="btn btn-primary btn-lg" id="donated-items-button"  onclick="changeView(VIEW.DONATED_ITEMS)">{{_("Items donated by donors")}}</a>
+    <a  class="btn btn-primary btn-lg" id="donated-money-button"  onclick="changeView(VIEW.DONATED_MONEY)">{{_("Money donated by donors")}}</a>
+    <a  class="btn btn-primary btn-lg" id="pending-requests-button"  onclick="changeView(VIEW.PENDING_REQUESTS)">{{_("Current requests")}}</a>
+    <a  class="btn btn-primary btn-lg" id=" request-history-button"  onclick="changeView(VIEW.REQUEST_HISTORY)">{{_("Completed requests")}}</a>
+  
+  </div>
+  <h2>{{ _("All resources") }}</h2>
+  <div>
+    <form method="post">
+      <label for="curr_charity_campaign">{{ _("Charity campaign") }}</label>
+      <select name="curr_charity_campaign_id" class="form-select">
+        {% if curr_charity_campaign is defined %}
+          {% for charity_campaign in charity_campaigns %}
+            {% if charity_campaign.id == curr_charity_campaign.id %} 
+              <option selected value="{{charity_campaign.id}}">{{charity_campaign.name}}</option>
+            {% else %}
+              <option value="{{charity_campaign.id}}">{{charity_campaign.name}}</option>
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          <option selected diabled hidden value="none">{{ _("Select charity campaign") }}</option>
+          {% for charity_campaign in charity_campaigns %}
+            <option value="{{charity_campaign.id}}">{{charity_campaign.name}}</option>
+          {% endfor %}
+        {% endif %}
+      </select>
+      <input type="submit" class="btn btn-secondary" value='{{_("Show resources for charity campaign")}}'>
+    </form>
+
+      {% if organizations_with_resources is defined %}
+        <table class="table table-hover" id="avaliable-resources">
+          <tr>
+            <th colspan="3">{{ _("Avaliable resources") }}</th>
+          </tr>
+          <tr>
+            <td> {{ _("Organization") }}</td>
+            <td> {{ _("Item type") }}</td>
+            <td> {{ _("Amount") }}</td>
+          </tr>
+          {% for curr_resource in organizations_with_resources %}
+          <tr>
+            <td rowspan="{{curr_resource.item_stock}}|length">{{curr_resource.organization.organization_name}}</td>
+            <td>
+              <table>
+                {% for curr_item_stock in curr_resource.item_stock %}
+                <tr>
+                  <td>{{curr_item_stock.type}}</td>
+                </tr>
+                {% endfor %}
+              </table>
+            </td>
+            <td>
+              <table>
+                {% for curr_item_stock in curr_resource.item_stock %}
+                <tr>
+                  <td>{{curr_item_stock.amount}}</td>
+                </tr>
+                {% endfor %}
+              </table>
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+
+        <table class="table table-hover" id="donated-items">
+          <tr>
+            <th colspan="3"> {{ _("Donations - items") }}</th>
+          </tr>
+          <tr>
+            <td> {{ _("Organization") }}</td>
+            <td> {{ _("Donation type") }}</td>
+            <td> {{ _("Donation amount") }}</td>
+          </tr>
+          {% for curr_resource in organizations_with_resources %}
+            {% if curr_resource.item_donations is defined and curr_resource.item_donations|length > 0 %}
+            <tr>
+              <td rowspan="{{curr_resource.item_donations}}|length">{{curr_resource.organization.organization_name}}</td>
+              <td>
+                <table>
+                  {% for curr_item_donation in curr_resource.item_donations %}
+                  <tr>
+                    <td>{{curr_item_donation.type}}</td>
+                  </tr>
+                  {% endfor %}
+                </table>
+              </td>
+              <td>
+                <table>
+                  {% for curr_item_donation in curr_resource.item_donations %}
+                  <tr>
+                    <td>{{curr_item_donation.amount}}</td>
+                  </tr>
+                  {% endfor %}
+                </table>
+              </td>
+            </tr>
+            {% endif %}
+          {% endfor %}
+        </table>
+
+        <table class="table table-hover" id="donated-money">
+          <tr>
+            <th colspan="3"> {{ _("Donations - money") }}</th>
+          </tr>
+          <tr>
+            <td> {{ _("Organization") }}</td>
+            <td> {{ _("Donation type") }}</td>
+            <td> {{ _("Donation amount") }}</td>
+          </tr>
+          {% for curr_resource in organizations_with_resources %}
+            {% if curr_resource.money_donations is defined and curr_resource.money_donations|length > 0 %}
+            <tr>
+              <td rowspan="{{curr_resource.money_donations}}|length">{{curr_resource.organization.organization_name}}</td>
+              <td>
+                <table>
+                  {% for curr_money_donation in curr_resource.money_donations %}
+                  <tr>
+                    <td>{{curr_money_donation.donation_type}}</td>
+                  </tr>
+                  {% endfor %}
+                </table>
+              </td>
+              <td>
+                <table>
+                    {% for curr_money_donation in curr_resource.money_donations %}
+                    <tr>
+                      <td>{{curr_money_donation.cashAmount}}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+              </td>
+            </tr>
+            {% endif %}
+          {% endfor %}
+        </table>
+
+        <table class="table table-hover" id="pending-requests">
+          <tr>
+            <th colspan="3">{{ _("Pending") }}</th>
+          </tr>
+          <tr>
+            <td>{{ _("Lp") }} </td>
+            <td>{{ _("Name") }}</td>
+            <td>{{ _("Status") }}</td>
+            <td>{{ _("Affected") }}  </td>
+            <td>{{ _("Address") }} </td>
+            <td>{{ _("Needs") }}</td>
+            <td>{{ _("Amount") }}</td>
+          </tr>
+          {% for curr_request in requests_for_charity_campaign %}
+          {% if curr_request.status == request_status.PENDING %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>{{ curr_request.name }}</td>
+              <td>{{ curr_request.status }}</td>
+              <td>
+                <table class="table">
+                  <tr>
+                    <td>{{ _("First name:") }}</td>
+                    <td>{{ curr_request.first_name }}</td>
+                  </tr>
+                  <tr>
+                    <td>{{ _("Last name") }}  </td>
+                    <td> {{ curr_request.last_name }} </td>
+                  </tr>
+                </table>
+              </td>
+              <td>
+                <table>
+                  <tr>
+                    <td>{{ _("City") }}:</td>
+                    <td>{{ curr_request.city }}</td>
+                  </tr>
+                  <tr>
+                    <td>{{ _("Street") }}  </td>
+                    <td> {{ curr_request.street }} </td>
+                  </tr>
+                </table>
+              </td>
+              <td>{{ curr_request.type }}</td>
+              <td> {{curr_request.amount}} </td>
+            </tr>
+          {% endif %}
+          {% endfor %}
+
+        </table>
+
+        <table class="table table-hover" id="request-history">
+          <tr>
+            <th colspan="3">{{ _("Request history") }}</th>
+          </tr>
+          <tr>
+            <td>{{ _("Lp") }} </td>
+            <td>{{ _("Name") }}</td>
+            <td>{{ _("Status") }}</td>
+            <td>{{ _("Affected") }}  </td>
+            <td>{{ _("Address") }} </td>
+            <td>{{ _("Needs") }}</td>
+            <td>{{ _("Amount") }}</td>
+          </tr>
+          {% for curr_request in requests_for_charity_campaign %}
+          {% if curr_request.status == request_status.COMPLETED %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>{{ curr_request.name }}</td>
+              <td>{{ curr_request.status }}</td>
+              <td>
+                <table class="table">
+                  <tr>
+                    <td>{{ _("First name:") }}</td>
+                    <td>{{ curr_request.first_name }}</td>
+                  </tr>
+                  <tr>
+                    <td>{{ _("Last name") }}  </td>
+                    <td> {{ curr_request.last_name }} </td>
+                  </tr>
+                </table>
+              </td>
+              <td>
+                <table>
+                  <tr>
+                    <td>{{ _("City") }}:</td>
+                    <td>{{ curr_request.city }}</td>
+                  </tr>
+                  <tr>
+                    <td>{{ _("Street") }}  </td>
+                    <td> {{ curr_request.street }} </td>
+                  </tr>
+                </table>
+              </td>
+              <td>{{ curr_request.type }}</td>
+              <td> {{curr_request.amount}} </td>
+            </tr>
+          {% endif %}
+          {% endfor %}
+
+        </table>
+      {% endif %}
+  </div>
+</div>
+
+{% endblock %}

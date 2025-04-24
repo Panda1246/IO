@@ -1,0 +1,43 @@
+{% extends "base.jinja" %}
+
+{% block title %}{{ _("Volunteer's Charity Campaigns") }}{% endblock %}
+
+{% block content %}
+<div class="container mt-2">
+    {% if referrer %}
+    <br>
+    <div>
+        <a href="{{ referrer }}" class="btn btn-secondary">{{ _("Back") }}</a>
+    </div>
+    <hr class="my-4" />
+    {% endif %}
+    <h1>{{ _("Volunteer's Charity Campaigns") }}</h1>
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">{{ _("Organization Name") }}</th>
+                <th scope="col">{{ _("Charity Campaign") }}</th>
+                <th scope="col">{{ _("Assigned tasks") }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for campaign in organization_charity_campaigns %}
+            <tr>
+                <td>{{ campaign.organization.organization_name }}</td>
+                <td>
+                    <a class="btn btn-primary btn-sm ml-4"
+                        href="{{ url_for('organization.view_campaign', charity_campaign_id=campaign.charity_campaign.id) }}">
+                        {{ campaign.charity_campaign.name }}
+                    </a>
+                </td>
+                <td>
+                    <a class="btn btn-primary btn-sm"
+                        href="{{ url_for('volunteers.list_tasks_by_charity_campaign', charity_campaign_id=campaign.id) }}">
+                        {{ _("View Tasks") }}
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+    </table>
+</div>
+{% endblock %}

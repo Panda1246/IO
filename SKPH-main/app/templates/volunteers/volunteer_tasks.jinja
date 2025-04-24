@@ -1,0 +1,103 @@
+{% extends "base.jinja" %}
+
+{% block title %}{{ _("Volunteer Tasks") }}{% endblock %}
+
+{% block content %}
+<div class="container mt-2">
+    {% if referrer %}
+    <br>
+    <div>
+        <a href="{{ referrer }}" class="btn btn-secondary">{{ _("Back") }}</a>
+    </div>
+    <hr class="my-4" />
+    {% endif %}
+    <h3>{{ _("Your Tasks") }}</h3>
+    {% if charity_campaign_id %}
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">{{ _("Name") }}</th>
+                <th scope="col">{{ _("Description") }}</th>
+                <th scope="col">{{ _("Status") }}</th>
+                <th scope="col">{{ _("Update Status") }}</th>
+                <th scope="col">{{ _("Evaluation") }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in volunteer.tasks %}
+            {% if task.charity_campaign_id == charity_campaign_id %}
+            <tr>
+                <td>{{ task.name }}</td>
+                <td>{{ task.description }}</td>
+                <td>
+                    {% if task.status == 'completed' %}
+                    <span class="badge badge-success">{{ status_translations[task.status] }}</span>
+                    {% elif task.status == 'rejected' %}
+                    <span class="badge badge-danger">{{ status_translations[task.status] }}</span>
+                    {% else %}
+                    <span class="badge badge-info">{{ status_translations[task.status] }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('volunteers.update_task_status', task_id=task.id) }}"
+                        class="btn btn-primary {% if task.status == 'completed' %}disabled{% endif %}" {% if
+                        task.status=='completed' %} onclick="return false;" disabled {% endif %}>
+                        {{ _("Update Status") }}
+                    </a>
+                </td>
+                <td>
+                    {% if task.evaluation_ %}
+                    Score: {{ task.evaluation_.score }}<br />Description: {{ task.evaluation_.description }}
+                    {% else %}
+                    <span class="badge badge-info">{{ _("Not evaluated") }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+    </table>
+    {% else %}
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">{{ _("Name") }}</th>
+                <th scope="col">{{ _("Description") }}</th>
+                <th scope="col">{{ _("Status") }}</th>
+                <th scope="col">{{ _("Update Status") }}</th>
+                <th scope="col">{{ _("Evaluation") }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in volunteer.tasks %}
+            <tr>
+                <td>{{ task.name }}</td>
+                <td>{{ task.description }}</td>
+                <td>
+                    {% if task.status == 'completed' %}
+                    <span class="badge badge-success">{{ status_translations[task.status] }}</span>
+                    {% elif task.status == 'rejected' %}
+                    <span class="badge badge-danger">{{ status_translations[task.status] }}</span>
+                    {% else %}
+                    <span class="badge badge-info">{{ status_translations[task.status] }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('volunteers.update_task_status', task_id=task.id) }}"
+                        class="btn btn-primary {% if task.status == 'completed' %}disabled{% endif %}" {% if
+                        task.status=='completed' %} onclick="return false;" disabled {% endif %}>
+                        {{ _("Update Status") }}
+                    </a>
+                </td>
+                <td>
+                    {% if task.evaluation_ %}
+                    Score: {{ task.evaluation_.score }}<br />Description: {{ task.evaluation_.description }}
+                    {% else %}
+                    <span class="badge badge-info">{{ _("Not evaluated") }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+    </table>
+    {% endif %}
+</div>
+{% endblock %}

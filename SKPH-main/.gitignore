@@ -1,0 +1,26 @@
+# Byte-compiled
+__pycache__/
+
+# Environments
+.env
+.venv
+env/
+venv/
+
+# PyCharm
+.idea/
+
+# vscode
+.vscode/
+
+# Flask
+instance/
+.webassets-cache
+
+# Tests
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Babel
+*.mo

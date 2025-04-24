@@ -1,0 +1,44 @@
+{% extends "base.jinja" %}
+
+{% block title %}{{ _("Evaluate Task") }}{% endblock %}
+
+{% block content %}
+<div class="container mt-2">
+  {% if referrer %}
+  <br>
+  <div>
+    <a href="{{ referrer }}" class="btn btn-secondary">{{ _("Back") }}</a>
+  </div>
+  <hr class="my-4" />
+  {% endif %}
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <h3>{{ _("Evaluate Task") }}</h3>
+      <p>{{ _("Task:") }} {{ task.name }}</p>
+      <p>{{ _("Volunteer:") }} {{ task.volunteer.first_name }} {{ task.volunteer.last_name }}</p>
+      <p>{{ _("Task Description:") }} {{ task.description }}</p>
+      <p>{{ _("Task Status:") }} {{ task.status }}</p>
+      <form method="post">
+        <fieldset>
+          <div class="form-group">
+            <label for="score">{{ _("Score") }}</label>
+            <select class="form-control" id="score" name="score" required>
+              <option value="" disabled selected>{{ _("Select a score") }}</option>
+              {% for i in range(1,6) %}
+              <option value="{{ i }}">{{ i }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="description">{{ _("Description:") }}</label>
+            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+          </div>
+        </fieldset>
+        <div>
+          <button type="submit" class="btn btn-primary">{{ _("Evaluate task") }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

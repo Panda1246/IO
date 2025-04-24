@@ -1,0 +1,21 @@
+name: io_2024
+
+services:
+  postgresql:
+    container_name: io_db
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - data:/var/lib/postgresql/data
+volumes:
+  data:
+
+networks:
+  default:
+    name: io_db_network

@@ -1,0 +1,35 @@
+[flake8]
+
+ignore=
+       # Annotation for self.
+       ANN101,
+       # Return annotation for special functions.
+       ANN204,
+       # Missing docstring in public method.
+       D102,
+       # Missing docstring in magic method.
+       D105,
+       # Missing docstring in __init__.
+       D107,
+       # Line length is checked by pylint.
+       E501
+
+dictionaries=en_US,
+             python,
+             technical
+
+import-order-style=google
+
+max-line-length=120
+
+spellcheck-targets=comments
+
+class_attributes_order=field,
+                       meta_class,
+                       nested_class,
+                       magic_method,
+                       property_method,
+                       static_method,
+                       class_method,
+                       method,
+                       private_method

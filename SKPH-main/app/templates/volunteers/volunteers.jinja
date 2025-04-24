@@ -1,0 +1,24 @@
+{% extends "base.jinja" %}
+
+{% block title %}{{ _("Volunteers Module") }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+  <h1>{{ _("Volunteers Module") }}</h1>
+  <div class="d-flex flex-column align-items-stretch">
+    <div class="mb-2">
+      {% if not samples_added %}
+      <form action="{{ url_for('volunteers.samples') }}" method="post" class="d-flex w-100">
+        <button class="btn btn-primary w-100">{{ _("Add Sample Data") }}</button>
+      </form>
+      {% else %}
+      <button class="btn btn-secondary w-100" disabled>{{ _("Sample Data Added") }}</button>
+      {% endif %}
+    </div>
+    <hr class="my-4" />
+    <a class="btn btn-primary w-100 mb-2" href="{{ url_for('volunteers.fetch_all') }}">{{ _("View All Volunteers")
+      }}</a>
+    <a class="btn btn-primary w-100 mb-2" href="{{ url_for('volunteers.create_task') }}">{{ _("Create Task") }}</a>
+  </div>
+</div>
+{% endblock %}

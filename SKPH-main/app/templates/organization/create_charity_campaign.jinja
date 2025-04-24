@@ -1,0 +1,26 @@
+{% extends "base.jinja" %}
+
+{% block title %}{{ _("Create Charity Campaign") }}{% endblock %}
+
+{% block content %}
+<div class="container mt-2">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h1>{{ _("Create a New Campaign") }}</h1>
+            <form method="post">
+                <fieldset>
+                    <div class="form-group">
+                        <label for="name">{{ _("Name:") }}</label>
+                        <input class="form-control" type="text" id="name" name="name" required><br>
+                        <label for="description">{{ _("Description:") }}</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"
+                            required></textarea><br>
+                        <br>
+                        <button type="submit" class="btn btn-primary">{{ _("Create Campaign") }}</button>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

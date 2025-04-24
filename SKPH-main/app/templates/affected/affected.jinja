@@ -1,0 +1,33 @@
+{% extends "base.jinja" %}
+
+{% block title %}{{ _("Affected Module") }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+  <h1>{{ _("Affected Module") }}</h1>
+  <div class="d-flex flex-column align-items-stretch">
+    <div class="mb-2">
+{% if current_user.is_authenticated and current_user.type in ['admin', 'organization', 'authorities'] %}
+        {% if not samples_added %}
+        <form action="{{ url_for('affected.samples') }}" method="post" class="d-flex w-100">
+          <button class="btn btn-primary w-100">{{ _("Add Sample Data") }}</button>
+        </form>
+        {% else %}
+        <button class="btn btn-secondary w-100" disabled>{{ _("Sample Data Added") }}</button>
+        {% endif %}
+      {% endif %}
+    </div>
+    <hr class="my-4" />
+    {% if current_user.is_authenticated and current_user.type in ['admin', 'organization', 'authorities'] %}
+      <a class="btn btn-primary w-100 mb-2" href="{{ url_for('affected.fetch_all') }}">{{ _("View All Affected") }}</a>
+      <a class="btn btn-primary w-100 mb-2" href="{{ url_for('affected.all_requests') }}">{{ _("View All Requests") }}</a>
+    {% endif %}
+    {% if current_user.is_authenticated and current_user.type == 'affected' %}
+      <a class="btn btn-primary w-100 mb-2 {% if not current_user.affected.campaign_id %}disabled{% endif %}"
+         href="{{ url_for('affected.create_request', affected_id=current_user.affected.id) }}">
+        {{ _("Create Request") }}
+      </a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

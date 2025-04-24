@@ -1,0 +1,31 @@
+{% extends "base.jinja" %}
+
+{% block title %}{{ _("Reports") }}{% endblock %}
+
+{% block script %}
+<script src='../../static/reports/js/viewInHTML.js' defer></script>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-primary text-center">{{ _("Reports") }}</h1>
+    <div class="text-center my-4">
+        <button id="back-btn" class="btn btn-secondary">{{ _("Powrót do Reports UI") }}</button>
+    </div>
+
+    <ul class="list-unstyled">
+        {% for report in reports %}
+        <li class="mb-4 p-3 border bg-white">
+            <p><strong>{{ _("Report ID:") }}</strong> {{ report.report_id }}</p>
+            <p><strong>{{ _("Created At:") }}</strong> {{ report.created_at }}</p>
+            <p><strong>{{ _("Entries:") }}</strong></p>
+            <ul>
+                {% for entry in report.entries %}
+                <li>{{ entry.resource_name }}: {{ entry.quantity }} ({{ entry.location }})</li>
+                {% endfor %}
+            </ul>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

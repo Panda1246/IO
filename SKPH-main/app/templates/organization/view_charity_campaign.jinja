@@ -1,0 +1,45 @@
+{% extends "base.jinja" %}
+
+{% block title %}{{ _("Charity Campaigns") }}{% endblock %}
+
+
+{% block content %}
+<div class="container mt-2">
+    {% if referrer %}
+    <br>
+    <div>
+        <a href="{{ referrer }}" class="btn btn-secondary">{{ _("Back") }}</a>
+    </div>
+    <hr class="my-4" />
+    {% endif %}
+    <section>
+        <h2>{{ _("Charity Campaign Informations") }}</h2>
+        <ul class="list-group">
+            <li class="list-group-item"><strong>{{ _("Name:") }}</strong> {{ campaign.name }}</li>
+            <li class="list-group-item"><strong>{{ _("Description:") }}</strong> {{ campaign.description }}</li>
+        </ul>
+    </section>
+    <br>
+    <section>
+        <h2>{{ _("Authorities Information") }}</h2>
+        <ul class="list-group">
+            <li class="list-group-item"><strong>{{ _("Name:") }}</strong> {{ campaign.authority.name }}</li>
+            <li class="list-group-item"><strong>{{ _("Phone:") }}</strong> {{ campaign.authority.phone }}</li>
+            <li class="list-group-item"><strong>{{ _("Status:") }}</strong>
+                {% if campaign.authority.approved %}
+                <span class="badge badge-success">{{ _("Approved") }}</span>
+                {% else %}
+                <span class="badge badge-warning">{{ _("Not approved") }}</span>
+                {% endif %}
+            </li>
+            <li class="list-group-item"><strong>{{ _("Voivodeship:") }}</strong> {{
+                campaign.authority.address.voivodeship }}
+            <li class="list-group-item"><strong>{{ _("City:") }}</strong> {{ campaign.authority.address.city }}</li>
+            <li class="list-group-item"><strong>{{ _("Street:") }}</strong> {{ campaign.authority.address.street }}</li>
+            <li class="list-group-item"><strong>{{ _("Street number:") }}</strong>
+                {{ campaign.authority.address.street_number }}
+            </li>
+        </ul>
+    </section>
+</div>
+{% endblock %}

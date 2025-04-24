@@ -1,0 +1,38 @@
+{% extends "base.jinja" %}
+
+{% block title %}{{ _("Affected List") }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-primary text-center">{{ _("Lista Affected") }}</h1>
+    <div class="text-center my-4">
+        <a href="{{ url_for('reports.affected_csv') }}" class="btn btn-success">Eksportuj CSV</a>
+        <a href="{{ url_for('reports.ui') }}" class="btn btn-secondary">Powrót do Reports UI</a>
+    </div>
+
+    <table class="table table-bordered">
+        <thead class="thead-light">
+            <tr>
+                <th>{{ _("ID") }}</th>
+                <th>{{ _("Imię") }}</th>
+                <th>{{ _("Nazwisko") }}</th>
+                <th>{{ _("Needs") }}</th>
+                <th>{{ _("Address (City)") }}</th>
+                <th>{{ _("Address (Voivodeship)") }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for aff in affected_list %}
+            <tr>
+                <td>{{ aff.id }}</td>
+                <td>{{ aff.first_name }}</td>
+                <td>{{ aff.last_name }}</td>
+                <td>{{ aff.needs }}</td>
+                <td>{{ aff.address.city if aff.address else "" }}</td>
+                <td>{{ aff.address.voivodeship if aff.address else "" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

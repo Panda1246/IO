@@ -1,0 +1,36 @@
+{% extends "base.jinja" %}
+
+{% block title %}{{ _("List of Organizations") }}{% endblock %}
+
+{% block content %}
+<div class="container mt-2">
+    <h1>{{ _("Charity Organizations") }}</h1>
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <th>{{ _("Name") }}</th>
+                <th>{{ _("Description") }}</th>
+                <th>{{ _("Status") }}</th>
+                <th>{{ _("Address") }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for organization in organizations %}
+            <tr>
+                <td>{{ organization.organization_name }}</td>
+                <td>{{ organization.description }}</td>
+                <td>
+                    {% if organization.approved %}
+                    <span class="badge badge-success">{{ _("Approved") }}</span>
+                    {% else %}
+                    <span class="badge badge-warning">{{ _("Not approved") }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ organization.address.street }} {{ organization.address.street_number }},
+                    {{ organization.address.city }}, {{ organization.address.voivodeship }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

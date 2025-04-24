@@ -1,0 +1,17 @@
+{% extends "base.jinja" %}
+
+{% block title %}{{ _("Tracking and managing resources module") }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+  <h1>{{ _("Tracking and managing resources module") }}</h1>
+
+  {% if data_present %}
+  <a class="btn btn-secondary w-100" disabled>{{ _("Sample Data Added") }}</a>
+  {% else %}
+  <a class="btn btn-primary w-100" href="{{ url_for('supply_chain.add_data') }}">{{ _("Add sample data") }}</a>
+  {% endif %}
+  <a class="btn btn-primary w-100" href="{{ url_for('supply_chain.truncate') }}">{{ _("Remove sample data") }}</a>
+</div>
+
+{% endblock %}

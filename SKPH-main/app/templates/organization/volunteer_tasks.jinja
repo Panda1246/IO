@@ -1,0 +1,102 @@
+{% extends "base.jinja" %}
+
+{% block title %}{{ _("Volunteer Tasks") }}{% endblock %}
+
+{% block content %}
+<div class="container mt-2">
+    <br>
+    <div>
+        <a href="{{ referrer }}" class="btn btn-secondary">{{ _("Back") }}</a>
+    </div>
+    <hr class="my-4" />
+    <h3>{{ _("Tasks for") }} {{ volunteer.first_name }} {{ volunteer.last_name }}</h3>
+    {% if current_user.type == 'organization' %}
+    <div class="d-flex justify-content-end">
+        <a href="{{ url_for('organization.create_task_specific_volunteer', organization_charity_campaign_id=charity_campaign_id, volunteer_id=volunteer.id) }}"
+            class="btn btn-primary">
+            {{ _("Create Task") }}
+        </a>
+    </div>
+    <br>
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">{{ _("Name") }}</th>
+                <th scope="col">{{ _("Description") }}</th>
+                <th scope="col">{{ _("Status") }}</th>
+                <th scope="col">{{ _("Evaluation") }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in volunteer.tasks %}
+            {% if task.charity_campaign_id == charity_campaign_id %}
+            <tr>
+                <td>{{ task.name }}</td>
+                <td>{{ task.description }}</td>
+                <td>
+                    {% if task.status == 'completed' %}
+                    <span class="badge badge-success">{{ status_translations[task.status] }}</span>
+                    {% elif task.status == 'rejected' %}
+                    <span class="badge badge-danger">{{ status_translations[task.status] }}</span>
+                    {% else %}
+                    <span class="badge badge-info">{{ status_translations[task.status] }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if task.evaluation_ %}
+                    {{ _("Score") }}: {{ task.evaluation_.score }}<br />{{ _("Description") }}: {{
+                    task.evaluation_.description }}
+                    {% else %}
+                    <a href="{{ url_for('organization.eval_task', charity_campaign_id=task.charity_campaign_id, task_id=task.id) }}"
+                        class="btn btn-primary {% if task.status != 'completed' %}disabled{% endif %}">{{
+                        _("Evaluate")
+                        }}</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+    </table>
+    {% else %}
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">{{ _("Name") }}</th>
+                <th scope="col">{{ _("Description") }}</th>
+                <th scope="col">{{ _("Status") }}</th>
+                <th scope="col">{{ _("Evaluation") }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in volunteer.tasks %}
+            {% if task.charity_campaign_id == charity_campaign_id %}
+            <tr>
+                <td>{{ task.name }}</td>
+                <td>{{ task.description }}</td>
+                <td>
+                    {% if task.status == 'completed' %}
+                    <span class="badge badge-success">{{ status_translations[task.status] }}</span>
+                    {% elif task.status == 'rejected' %}
+                    <span class="badge badge-danger">{{ status_translations[task.status] }}</span>
+                    {% else %}
+                    <span class="badge badge-info">{{ status_translations[task.status] }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if task.evaluation_ %}
+                    {{ _("Score") }}: {{ task.evaluation_.score }}<br />{{ _("Description") }}: {{
+                    task.evaluation_.description }}
+                    {% else %}
+                    <a href="{{ url_for('organization.eval_task', charity_campaign_id=task.charity_campaign_id, task_id=task.id) }}"
+                        class="btn btn-primary disabled">{{
+                        _("Evaluate")
+                        }}</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+    </table>
+    {% endif %}
+</div>
+{% endblock %}

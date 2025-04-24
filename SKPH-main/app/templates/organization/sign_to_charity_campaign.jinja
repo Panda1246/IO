@@ -1,0 +1,37 @@
+{% extends "base.jinja" %}
+
+{% block title %}{{ _("Sign to Charity Campaign") }}{% endblock %}
+
+{% block content %}
+<div class="container mt-2">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            {% if charity_campaigns %}
+            <form method="post">
+                <fieldset>
+                    <legend>{{ _("Sign to Charity Campaign") }}</legend>
+                    <label for="charity_campaign_id">{{ _("Charity Campaign:") }}</label>
+                    <select class="form-control" id="charity_campaign_id" name="charity_campaign_id" required>
+                        {% for campaign in charity_campaigns %}
+                        <option value="{{ campaign.id }}">{{ campaign.name }}</option>
+                        {% endfor %}
+                    </select><br>
+                    <button type="submit" class="btn btn-primary">{{ _("Sign In") }}</button>
+                </fieldset>
+            </form>
+            {% else %}
+            <div class="alert alert-dismissible alert-warning">
+                <h4 class="alert-heading">{{ _("Warning") }}!</h4>
+                <p class="mb-0">
+                    {{ _("There is no available charity campaigns.") }}
+                    <br>
+                    <a href="{{ url_for('home') }}" class="alert-link">
+                        {{_("Return to main page") }}
+                    </a>.
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

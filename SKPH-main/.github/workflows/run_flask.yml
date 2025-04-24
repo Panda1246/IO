@@ -1,0 +1,83 @@
+name: Run Flask App
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  run-flask:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    timeout-minutes: 3
+    
+    env:
+      db_name: ${{ secrets.DB_NAME }}
+      db_user: ${{ secrets.DB_USER }}
+      db_password: ${{ secrets.DB_PASSWORD }}
+      db_port: 5432
+      db_path: docker/database/docker-compose.yml
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Docker
+      uses: docker/setup-buildx-action@v1
+
+    - name: Run Docker Compose with local database
+      run: |
+        echo "DB_NAME=${{ env.db_name }}" >> .env
+        echo "DB_USER=${{ env.db_user }}" >> .env
+        echo "DB_PASSWORD=${{ env.db_password }}" >> .env
+        echo "DB_PORT=${{ env.db_port }}" >> .env
+
+        docker compose -f ${{ env.db_path }} up -d
+
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.12"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run Flask App
+      run: |
+        export DATABASE_URI=postgresql+psycopg2://${{ env.db_user }}:${{ env.db_password }}@localhost:${{ env.db_port }}/${{ env.db_name }}
+        export MAIL_SERVER=${{ secrets.MAIL_SERVER }}
+        export MAIL_PORT=${{ secrets.MAIL_PORT }}
+        export MAIL_USE_SSL=${{ secrets.MAIL_USE_SSL }}
+        export MAIL_USE_TLS=${{ secrets.MAIL_USE_TLS }}
+        export MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+        export MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+        export MAIL_DEFAULT_SENDER=${{ secrets.MAIL_DEFAULT_SENDER }}
+
+        pybabel compile -d translations
+        python -m flask run &
+
+    - name: Check Flask App
+      run: |
+        echo "Waiting for Flask App to start..."
+        sleep 10
+
+        echo "::group::Response from / endpoint:"
+        curl -sS http://localhost:5000/
+        echo -e "\n::endgroup::"
+
+        echo "::group::Response from /db endpoint:"
+        curl -sS http://localhost:5000/db
+        echo -e "\n::endgroup::"
+
+    - name: Tear down Docker Compose
+      if: always()
+      run: |
+        docker compose -f ${{ env.db_path }} down

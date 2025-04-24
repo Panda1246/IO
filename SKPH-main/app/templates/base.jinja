@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ _("Crisis Management System") }}{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <!-- Include Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  {% block script %}{% endblock %}
+</head>
+
+<body>
+  <header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <a class="navbar-brand" href="{{ url_for('home') }}">SKPH</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01"
+        aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarColor01">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="{{ url_for('home') }}">{{ _("Home") }}
+              <span class="sr-only">(current)</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('organization.list_charity_campaigns') }}">{{ _("Campaigns") }}</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('organization.list_organizations') }}">{{ _("Organizations")}}</a>
+          </li>
+          {% if current_user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('chat.index') }}">{{ _("Chat")}}</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('maps.index') }}">{{ _("Maps")}}</a>
+          </li>
+          {% endif %}
+          {# <li class="nav-item">
+            <a class="nav-link" href="#">{{ _("About") }}</a>
+          </li> #}
+        </ul>
+        <form action="{{ url_for('set_language') }}" method="post" class="form-inline my-2 my-lg-0">
+          <div class="dropdown">
+            <button class="btn btn-link dropdown-toggle" type="button" id="languageDropdown" data-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">
+              🌐 {{ _("Language") }}
+            </button>
+            <div class="dropdown-menu" aria-labelledby="languageDropdown">
+              <button type="submit" name="lang" value="en" class="dropdown-item">🇬🇧 English</button>
+              <button type="submit" name="lang" value="pl" class="dropdown-item">🇵🇱 Polski</button>
+            </div>
+          </div>
+        </form>
+        {% if current_user.is_authenticated %}
+        <div class="navbar-text mr-3">
+          {{ current_user.email }} ({{ current_user.type }})
+        </div>
+        {% if current_user.type != 'admin' %}
+        <button type="button" class="btn btn-primary btn-sm mr-2"
+          onclick="window.location.href='{{ url_for('auth.profile') }}'">{{ _('Profile') }}</button>
+        {% endif %}
+        <button type="button" class="btn btn-primary btn-sm"
+          onclick="window.location.href='{{ url_for('auth.logout') }}'">{{ _('Logout') }}</button>
+        {% else %}
+        <button type="button" class="btn btn-primary btn-sm"
+          onclick="window.location.href='{{ url_for('auth.login') }}'">{{ _('Login') }}</button>
+        {% endif %}
+      </div>
+    </nav>
+  </header>
+
+  {% with messages = get_flashed_messages(with_categories=True) %}
+  {% if messages %}
+  <div class="container mt-2">
+    {% for category, message in messages %}
+    {% if category not in ['info', 'warning'] %}
+    {% set category = 'info' %}
+    {% endif %}
+    <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
+
+  <main>
+    {% block content %} {% endblock %}
+  </main>
+
+  <!-- Include jQuery and Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

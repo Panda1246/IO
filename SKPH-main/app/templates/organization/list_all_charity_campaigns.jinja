@@ -1,0 +1,47 @@
+{% extends "base.jinja" %}
+
+{% block title %}{{ _("Charity Campaigns") }}{% endblock %}
+
+{% block content %}
+<div class="container mt-2">
+    <h1>{{ _("Charity Campaigns") }}</h1>
+
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">{{ _("Name") }}</th>
+                <th scope="col">{{ _("Description") }}</th>
+                <th scope="col">{{ _("Authorities") }}</th>
+                <th scope="col">{{ _("Campaigns") }}</th>
+                <th scope="col">{{ _("Status") }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for campaign in charity_campaigns %}
+            <tr>
+                <td>{{ campaign.name }}</td>
+                <td>{{ campaign.description}}</td>
+                <td>
+                    <a class="btn btn-primary btn-sm"
+                        href="{{ url_for('organization.view_authorities', authorities_id=campaign.authority.id) }}">
+                        {{_("View Authority") }}
+                    </a>
+                </td>
+                <td>
+                    <a class="btn btn-primary btn-sm"
+                        href="{{ url_for('organization.list_signed_organizations', charity_campaign_id=campaign.id) }}">
+                        {{_("View Campaigns") }}
+                    </a>
+                </td>
+                <td>
+                    {% if campaign.is_active %}
+                    <span class="badge badge-success">{{ _("Active") }}</span>
+                    {% else %}
+                    <span class="badge badge-warning">{{ _("Inactive") }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+    </table>
+</div>
+{% endblock %}

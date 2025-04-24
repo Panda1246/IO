@@ -1,0 +1,21 @@
+{% extends "base.jinja" %}
+
+{% block title %}{{ _("Donors Module") }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+  <h1>{{ _("Donors Module") }}</h1>
+  <div class="d-flex flex-column align-items-stretch">
+    <div class="mb-2">
+      <form action="{{ url_for('donors.donor_samples') }}" method="post" class="d-flex w-100">
+        <button class="btn btn-primary w-100">{{ _("Add Sample Data") }}</button>
+      </form>
+    </div>
+    <hr class="my-d" />
+    <a class="btn btn-primary w-100 mb-2" href="{{ url_for('donors.fetch_donors') }}">{{ _("View All Donors") }}</a>
+    <a class="btn btn-primary w-100 mb-2" href="{{ url_for('donors.create_donation') }}">{{ _("Create donation") }}</a>
+      <a class="btn btn-primary w-100 mb-2" href="{{ url_for('donors.list_donations') }}">{{ _("List donations") }}</a>
+
+  </div>
+</div>
+{% endblock %}

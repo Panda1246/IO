@@ -1,0 +1,142 @@
+{% extends "base.jinja" %}
+
+{% block script %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+{% endblock %}
+
+
+{% block content %}
+<div id="map" style="width: 100%; height: 600px;"></div>
+
+<div style="margin-top: 10px;">
+    <label for="startPoi">Start:</label>
+    <select id="startPoi">
+        {% for poi in pois %}
+        <option value="{{ poi.id }}">{{ poi.name }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="endPoi">End:</label>
+    <select id="endPoi">
+        {% for poi in pois %}
+        <option value="{{ poi.id }}">{{ poi.name }}</option>
+        {% endfor %}
+    </select>
+
+    <button onclick="findRoute()">Find Route</button>
+</div>
+
+<script>
+    var map = L.map('map').setView([51.74708, 19.45404], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+{% for poi in pois %}
+    var markerIcon = L.divIcon({
+        className: 'custom-marker-icon',
+        html: `<div style="background-color: {{ 'blue' if poi.type_of_poi == 'punktDystrybucji' else 'red' }};
+                      width: 20px; height: 20px; border-radius: 50%;"></div>`,
+        iconSize: [20, 20],
+        iconAnchor: [10, 10],
+    });
+
+    var marker = L.marker([{{ poi.coordinates.x }}, {{ poi.coordinates.y }}], { icon: markerIcon })
+        .addTo(map)
+        .bindPopup(`
+            <b>{{ poi.name }}</b><br>
+        `);
+{% endfor %}
+
+{% for area in danger_areas %}
+    var dangerPolygon = L.polygon(
+        {{ area.coordinates | safe }},
+        { color: 'red', fillColor: 'red', fillOpacity: 0.5 }
+    ).addTo(map).bindPopup(`
+        <b>{{ area.name }}</b><br>
+    `);
+{% endfor %}
+
+{% for area in relief_areas %}
+    var reliefPolygon = L.polygon(
+        {{ area.coordinates | safe }},
+        { color: 'blue', fillColor: 'blue', fillOpacity: 0.5 }
+    ).addTo(map).bindPopup(`
+        <b>{{ area.name }}</b><br>
+    `);
+{% endfor %}
+
+    var routeLayer;
+
+    function findRoute() {
+        var startPoiId = document.getElementById('startPoi').value;
+        var endPoiId = document.getElementById('endPoi').value;
+
+        fetch(`/maps/${startPoiId}/${endPoiId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.route) {
+                    if (routeLayer) {
+                        map.removeLayer(routeLayer);
+                    }
+                    routeLayer = L.geoJSON(data.route, {
+                        style: { color: 'green', weight: 4 }
+                    }).addTo(map);
+                    map.fitBounds(routeLayer.getBounds());
+                } else {
+                    alert(data.error || "Could not calculate route");
+                }
+            });
+    }
+
+    var tempAreaPoints = [];
+    var tempAreaLayer;
+
+   function showPOIForm(lat, lng, type) {
+    var name = prompt(`Podaj nazwę dla ${type === 'punktDystrybucji' ? 'Punktu Dystrybucji' : 'Poszkodowanego'}:`);
+    if (name) {
+        fetch('/maps/add-poi', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lat, lng, name, type })
+        }).then(response => response.json()).then(data => {
+            if (data.success) {
+                location.reload(); // Restartuje stronę po dodaniu punktu
+            } else {
+                alert("Wystąpił błąd podczas dodawania punktu.");
+            }
+        });
+    }
+}
+
+    function updatePOIOptions(pois) {
+        const startPoiSelect = document.getElementById('startPoi');
+        const endPoiSelect = document.getElementById('endPoi');
+
+        // Wyczyść obecne opcje
+        startPoiSelect.innerHTML = '';
+        endPoiSelect.innerHTML = '';
+
+        // Nowe POI
+        pois.forEach(poi => {
+            const option = document.createElement('option');
+            option.value = poi.id;
+            option.textContent = poi.name;
+            startPoiSelect.appendChild(option);
+
+            const option2 = document.createElement('option');
+            option2.value = poi.id;
+            option2.textContent = poi.name;
+            endPoiSelect.appendChild(option2);
+        });
+    }
+
+    function updateAreaOptions(type, danger_areas, relief_areas) {
+        const startPoiSelect = document.getElementById('startPoi');
+        const endPoiSelect = document.getElementById('endPoi');
+
+    }
+</script>
+{% endblock %}

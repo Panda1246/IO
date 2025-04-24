@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rejestracja</title>
+</head>
+<body>
+    <h1>Witaj w naszym czacie!</h1>
+   
+
+    <h2>Zarejestrowani użytkownicy:</h2>
+    <ul>
+    {% for user in users %}
+        <li>{{ user.email }} {{user.id}} ({{user.type}})</li>
+    {% endfor %}
+    </ul>
+</body>
+</html>

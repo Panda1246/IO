@@ -1,0 +1,129 @@
+{% extends "base.jinja" %}
+
+{% block title %}{{ _("Crisis Management System") }}{% endblock %}
+
+{% block content %}
+<div class="jumbotron">
+  <h1 class="display-3">{{ _("Crisis Management System") }}</h1>
+  <p class="lead">
+    {{_("""The Crisis Management System is a web-based platform that brings authorities,
+    volunteers, aid organisations, affected and donors together in one place,
+    enabling effective coordination of emergency aid.""") }}
+  </p>
+  <hr class="my-4">
+  {% if current_user.type == 'admin' %}
+  <h3>{{ _("Modules") }}</h3>
+  <div class="d-flex flex-column">
+    <a class="btn btn-primary btn-lg" href="{{ url_for('volunteers.index') }}">{{ _("Volunteers Module") }}</a>
+    <br>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('organization.index') }}">{{ _("Organizations Module") }}</a>
+    <br>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('affected.index') }}">{{ _("Affected Module") }}</a>
+    <br>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('donors.index') }}">{{ _("Donors Module") }}</a>
+    <br>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('reports.ui') }}">{{ _("Reports Module") }}</a>
+    <br>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('maps.index') }}">{{ _("Maps Module") }}</a>
+    <br>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('chat.index') }}">{{ _("Chat Module") }}</a>
+    <br>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('supply_chain.demo') }}">{{ _("Tracking and managing resources
+      module") }}</a>
+  </div>
+  {% endif %}
+  <!-- AUTHORITIES -->
+  {% if current_user.type == 'authorities' %}
+  <div class="d-flex flex-column">
+    <hr>
+    <h3>{{ _("Authorities") }}</h3>
+    <br>
+    <a class="btn btn-primary btn-lg"
+      href="{{ url_for('organization.list_authorities_charity_campaigns', authorities_id=current_user.authorities.id) }}">{{
+      _("Track current campaigns") }}</a>
+    <br>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('organization.create_charity_campaign') }}">{{
+      _("Create a charity campaign") }}</a>
+    <br>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('supply_chain.view_all') }}">{{
+      _("Track supplies") }}</a>
+  </div>
+  {% endif %}
+  <!-- AFFECTED -->
+  {% if current_user.type == 'affected' %}
+  <div class="d-flex flex-column">
+    <hr>
+    <h3>{{ _("Affected") }}</h3>
+    <br>
+    <a class="btn btn-primary btn-lg"
+      href="{{ url_for('affected.create_request', affected_id=current_user.affected.id) }}">{{
+      _("Create request") }}</a>
+    <br>
+    <a class="btn btn-primary btn-lg"
+      href="{{ url_for('affected.affected_details', affected_id=current_user.affected.id) }}">{{
+      _("Manage requests") }}</a>
+  </div>
+  {% endif %}
+  <!-- VOLUNTEERS -->
+  {% if current_user.type == 'volunteer' %}
+  <div class="d-flex flex-column">
+    <hr>
+    <h3>{{ _("Volunteer") }}</h3>
+    <br>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('organization.volunteer_sign_to_charity_campaign') }}">{{
+      _("Volunteer your help") }}</a>
+    <br>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('organization.list_volunteer_charity_campaigns') }}">{{
+      _("List my campaigns") }}</a>
+    <br>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('volunteers.list_my_tasks') }}">{{
+      _("Manage my tasks") }}</a>
+  </div>
+  {% endif %}
+  <!-- DONORS -->
+  {% if current_user.type == 'donor' %}
+  <div class="d-flex flex-column">
+    <hr>
+    <h3>{{ _("Donor") }}</h3>
+    <br>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('donors.create_donation') }}">{{
+      _("Create a donation") }}</a>
+    <br>
+    <a class="btn btn-primary btn-lg"
+      href="{{ url_for('donors.list_donations', donor_id=current_user.donor.donor_id) }}">{{
+      _("View your donations") }}</a>
+  </div>
+  {% endif %}
+  <!-- ADMIN -->
+  {% if current_user.type == 'admin' %}
+  <div class="d-flex flex-column">
+    <hr>
+    <h3>{{ _("Admin") }}</h3>
+    <br>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('auth.manage_users') }}">{{
+      _("Admin Dashboard") }}</a>
+      <br>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('maps.add_page') }}">{{ _("Maps Module") }}</a>
+  </div>
+  {% endif %}
+  <!-- ORGANIZATION -->
+  {% if current_user.type == 'organization' %}
+  <div class="d-flex flex-column">
+    <hr>
+    <h3>{{ _("Organization") }}</h3>
+    <br>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('organization.sign_to_charity_campaign') }}">{{
+      _("Sign to a charity campaign") }}
+    </a>
+    <br>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('organization.list_my_charity_campaigns') }}">{{
+      _("Manage charity campaigns") }}</a>
+    <br>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('supply_chain.index') }}">{{
+      _("Manage resources") }}</a>
+    <br>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('maps.add_page') }}">{{ _("Maps Module") }}</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

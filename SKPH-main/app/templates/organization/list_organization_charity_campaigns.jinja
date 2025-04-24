@@ -1,0 +1,106 @@
+{% extends "base.jinja" %}
+
+{% block title %}{{ _("Organization Charity Campaigns") }}{% endblock %}
+
+{% block content %}
+<div class="container mt-2">
+  <h1>{{ _("Organization Charity Campaigns") }}</h1>
+  {% if current_user.type in 'organization' %}
+  <table class="table table-hover table-bordered">
+    <thead>
+      <tr>
+        <th scope="col">{{ _("Organization Name") }}</th>
+        <th scope="col">{{ _("Charity Campaign") }}</th>
+        <th scope="col">{{ _("Volunteers") }}</th>
+        <th scope="col">{{ _("Create Task") }}</th>
+        <th scope="col">{{ _("View Reports") }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for campaign in organization_charity_campaigns %}
+      <tr>
+        <td>{{ campaign.organization.organization_name }}</td>
+        <td>
+          <a class="btn btn-primary btn-sm ml-4"
+            href="{{ url_for('organization.view_campaign', charity_campaign_id=campaign.charity_campaign.id) }}">
+            {{ campaign.charity_campaign.name }}
+          </a>
+        </td>
+        <td>
+          <a class="btn btn-primary btn-sm"
+            href="{{ url_for('organization.manage_volunteers', charity_campaign_id=campaign.id) }}">
+            {{ _("Manage Volunteers") }}
+          </a>
+        </td>
+        <td>
+          <a class="btn btn-primary btn-sm"
+            href="{{ url_for('organization.create_task', organization_charity_campaign_id=campaign.id) }}">
+            {{ _("Create Task") }}
+          </a>
+        </td>
+        <td>
+          <a class="btn btn-primary btn-sm" href="{{ url_for('reports.ui') }}">
+            {{ _("Reports") }}
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+  </table>
+  {% elif current_user.type in 'authorities' %}
+  <table class="table table-hover table-bordered">
+    <thead>
+      <tr>
+        <th scope="col">{{ _("Organization Name") }}</th>
+        <th scope="col">{{ _("Charity Campaign") }}</th>
+        <th scope="col">{{ _("Volunteers") }}</th>
+        <th scope="col">{{ _("View Reports") }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for campaign in organization_charity_campaigns %}
+      <tr>
+        <td>{{ campaign.organization.organization_name }}</td>
+        <td>
+          <a class="btn btn-primary btn-sm ml-4"
+            href="{{ url_for('organization.view_campaign', charity_campaign_id=campaign.charity_campaign.id) }}">
+            {{ campaign.charity_campaign.name }}
+          </a>
+        </td>
+        <td>
+          <a class="btn btn-primary btn-sm"
+            href="{{ url_for('organization.list_volunteers', charity_campaign_id=campaign.id) }}">
+            {{ _("View Volunteers") }}
+          </a>
+        </td>
+        <td>
+          <a class="btn btn-primary btn-sm" href="{{ url_for('reports.ui') }}">
+            {{ _("Reports") }}
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+  </table>
+  {% else %}
+  <table class="table table-hover table-bordered">
+    <thead>
+      <tr>
+        <th scope="col">{{ _("Organization Name") }}</th>
+        <th scope="col">{{ _("Charity Campaign") }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for campaign in organization_charity_campaigns %}
+      <tr>
+        <td>{{ campaign.organization.organization_name }}</td>
+        <td>
+          <a class="btn btn-primary btn-sm ml-4"
+            href="{{ url_for('organization.view_campaign', charity_campaign_id=campaign.charity_campaign.id) }}">
+            {{ campaign.charity_campaign.name }}
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+  </table>
+  {% endif %}
+</div>
+{% endblock %}

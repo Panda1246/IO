@@ -1,0 +1,247 @@
+{% extends "bare-map.jinja" %}
+
+{% block content %}
+<div id="map" style="width: 100%; height: 600px;"></div>
+
+<div style="margin-top: 10px;">
+    <label for="startPoi">Start:</label>
+    <select id="startPoi">
+        {% for poi in pois %}
+        <option value="{{ poi.id }}">{{ poi.name }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="endPoi">End:</label>
+    <select id="endPoi">
+        {% for poi in pois %}
+        <option value="{{ poi.id }}">{{ poi.name }}</option>
+        {% endfor %}
+    </select>
+
+    <button onclick="findRoute()">Find Route</button>
+</div>
+
+<script>
+    var map = L.map('map').setView([51.74708, 19.45404], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+{% for poi in pois %}
+    var markerIcon = L.divIcon({
+        className: 'custom-marker-icon',
+        html: `<div style="background-color: {{ 'blue' if poi.type_of_poi == 'punktDystrybucji' else 'red' }};
+                      width: 20px; height: 20px; border-radius: 50%;"></div>`,
+        iconSize: [20, 20],
+        iconAnchor: [10, 10],
+    });
+
+    var marker = L.marker([{{ poi.coordinates.x }}, {{ poi.coordinates.y }}], { icon: markerIcon })
+        .addTo(map)
+        .bindPopup(`
+            <b>{{ poi.name }}</b><br>
+            <button onclick="deletePOI({{ poi.id }})">Usuń</button>
+        `);
+{% endfor %}
+
+{% for area in danger_areas %}
+    var dangerPolygon = L.polygon(
+        {{ area.coordinates | safe }},
+        { color: 'red', fillColor: 'red', fillOpacity: 0.5 }
+    ).addTo(map).bindPopup(`
+        <b>{{ area.name }}</b><br>
+        <button onclick="deleteDangerArea({{ area.id }})">Usuń</button>
+    `);
+{% endfor %}
+
+{% for area in relief_areas %}
+    var reliefPolygon = L.polygon(
+        {{ area.coordinates | safe }},
+        { color: 'blue', fillColor: 'blue', fillOpacity: 0.5 }
+    ).addTo(map).bindPopup(`
+        <b>{{ area.name }}</b><br>
+        <button onclick="deleteReliefArea({{ area.id }})">Usuń</button>
+    `);
+{% endfor %}
+
+    var routeLayer;
+
+    function findRoute() {
+        var startPoiId = document.getElementById('startPoi').value;
+        var endPoiId = document.getElementById('endPoi').value;
+
+        fetch(`/maps/${startPoiId}/${endPoiId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.route) {
+                    if (routeLayer) {
+                        map.removeLayer(routeLayer);
+                    }
+                    routeLayer = L.geoJSON(data.route, {
+                        style: { color: 'green', weight: 4 }
+                    }).addTo(map);
+                    map.fitBounds(routeLayer.getBounds());
+                } else {
+                    alert(data.error || "Could not calculate route");
+                }
+            });
+    }
+
+    var tempAreaPoints = [];
+    var tempAreaLayer;
+
+    map.on('contextmenu', function(e) {
+        var lat = e.latlng.lat;
+        var lng = e.latlng.lng;
+
+        var contextMenu = document.createElement('div');
+        contextMenu.id = 'context-menu';
+        contextMenu.style.position = 'absolute';
+        contextMenu.style.left = e.originalEvent.pageX + 'px';
+        contextMenu.style.top = e.originalEvent.pageY + 'px';
+        contextMenu.style.backgroundColor = 'white';
+        contextMenu.style.border = '1px solid #ccc';
+        contextMenu.style.padding = '10px';
+        contextMenu.style.zIndex = '1000';
+
+        contextMenu.innerHTML = `
+            <button onclick="showPOIForm(${lat}, ${lng}, 'punktDystrybucji')">Dodaj Punkt Dystrybucji</button><br>
+            <button onclick="showPOIForm(${lat}, ${lng}, 'poszkodowany')">Dodaj Poszkodowanego</button><br>
+            <button onclick="startArea(${lat}, ${lng}, 'danger')">Rozpocznij Danger Area</button><br>
+            <button onclick="startArea(${lat}, ${lng}, 'relief')">Rozpocznij Relief Area</button>
+        `;
+
+        document.body.addEventListener('click', function removeContextMenu() {
+            document.body.removeEventListener('click', removeContextMenu);
+            contextMenu.remove();
+        });
+
+        document.body.appendChild(contextMenu);
+    });
+
+   function showPOIForm(lat, lng, type) {
+    var name = prompt(`Podaj nazwę dla ${type === 'punktDystrybucji' ? 'Punktu Dystrybucji' : 'Poszkodowanego'}:`);
+    if (name) {
+        fetch('/maps/add-poi', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lat, lng, name, type })
+        }).then(response => response.json()).then(data => {
+            if (data.success) {
+                location.reload(); // Restartuje stronę po dodaniu punktu
+            } else {
+                alert("Wystąpił błąd podczas dodawania punktu.");
+            }
+        });
+    }
+}
+
+function startArea(lat, lng, type) {
+    tempAreaPoints.push([lat, lng]);
+    if (!tempAreaLayer) {
+        tempAreaLayer = L.polyline(tempAreaPoints, { color: type === 'danger' ? 'red' : 'blue' }).addTo(map);
+    } else {
+        tempAreaLayer.setLatLngs(tempAreaPoints);
+    }
+
+    if (tempAreaPoints.length > 2 && confirm("Czy chcesz zakończyć dodawanie punktów do obszaru?")) {
+        var name = prompt(`Podaj nazwę dla ${type === 'danger' ? 'Danger Area' : 'Relief Area'}:`);
+        if (name) {
+            fetch(`/maps/add-${type}-area`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ coordinates: tempAreaPoints, name })
+            }).then(response => response.json()).then(data => {
+                if (data.success) {
+                    location.reload(); // Restartuje stronę po dodaniu obszaru
+                } else {
+                    alert("Wystąpił błąd podczas dodawania obszaru.");
+                }
+            });
+        } else {
+            tempAreaPoints = [];
+            if (tempAreaLayer) {
+                map.removeLayer(tempAreaLayer);
+                tempAreaLayer = null;
+            }
+        }
+    }
+}
+
+
+    function updatePOIOptions(pois) {
+        const startPoiSelect = document.getElementById('startPoi');
+        const endPoiSelect = document.getElementById('endPoi');
+
+        // Wyczyść obecne opcje
+        startPoiSelect.innerHTML = '';
+        endPoiSelect.innerHTML = '';
+
+        // Nowe POI
+        pois.forEach(poi => {
+            const option = document.createElement('option');
+            option.value = poi.id;
+            option.textContent = poi.name;
+            startPoiSelect.appendChild(option);
+
+            const option2 = document.createElement('option');
+            option2.value = poi.id;
+            option2.textContent = poi.name;
+            endPoiSelect.appendChild(option2);
+        });
+    }
+
+    function updateAreaOptions(type, danger_areas, relief_areas) {
+        const startPoiSelect = document.getElementById('startPoi');
+        const endPoiSelect = document.getElementById('endPoi');
+
+    }
+
+    function deletePOI(id) {
+        if (confirm("Czy na pewno chcesz usunąć ten punkt?")) {
+            fetch(`/maps/delete-poi/${id}`, { method: 'DELETE' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Punkt został usunięty.");
+                        location.reload(); // Odśwież stronę, aby zaktualizować mapę
+                    } else {
+                        alert(data.message || "Wystąpił błąd podczas usuwania punktu.");
+                    }
+                });
+        }
+    }
+
+    function deleteDangerArea(id) {
+        if (confirm("Czy na pewno chcesz usunąć ten obszar?")) {
+            fetch(`/maps/delete-danger-area/${id}`, { method: 'DELETE' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Obszar niebezpieczeństwa został usunięty.");
+                        location.reload(); // Odśwież stronę, aby zaktualizować mapę
+                    } else {
+                        alert(data.message || "Wystąpił błąd podczas usuwania obszaru.");
+                    }
+                });
+        }
+    }
+
+    function deleteReliefArea(id) {
+        if (confirm("Czy na pewno chcesz usunąć ten obszar?")) {
+            fetch(`/maps/delete-relief-area/${id}`, { method: 'DELETE' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Obszar wsparcia został usunięty.");
+                        location.reload(); // Odśwież stronę, aby zaktualizować mapę
+                    } else {
+                        alert(data.message || "Wystąpił błąd podczas usuwania obszaru.");
+                    }
+                });
+        }
+    }
+
+</script>
+{% endblock %}

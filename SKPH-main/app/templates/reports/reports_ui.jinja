@@ -1,0 +1,64 @@
+{% extends "base.jinja" %}
+
+{% block title %}{{ _("Reports UI") }}{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+  <h1 class="text-primary text-center">{{ _("Reports UI") }}</h1>
+
+  <div class="text-center mt-4">
+    <button id="affected-report-btn" class="btn btn-primary mx-2">
+      {{ _("Generuj Raport Affected") }}
+    </button>
+    <button id="volunteer-report-btn" class="btn btn-secondary mx-2">
+      {{ _("Generuj Raport Volunteer") }}
+    </button>
+    <button id="donor-report-btn" class="btn btn-warning mx-2">
+      {{ _("Generuj Raport Donor") }}
+    </button>
+    <button id="organization-report-btn" class="btn btn-success mx-2">
+      {{ _("Generuj Raport Organization") }}
+    </button>
+  </div>
+
+  <hr />
+
+  <div class="mt-4 text-center">
+    <p>{{ _("Podaj") }} <strong>donor_id</strong>{{ _(", aby zobaczyć raport tylko dla jednego donora:") }}</p>
+    <input type="number" id="single-donor-id" placeholder="Wpisz donor_id" class="form-control d-inline-block w-auto" />
+    <button id="single-donor-report-btn" class="btn btn-info mx-2">
+      {{ _("Raport Jednego Donora") }}
+    </button>
+  </div>
+
+</div>
+
+<script>
+  document.getElementById('affected-report-btn').addEventListener('click', () => {
+    window.location.href = '/reports/affected-report';
+  });
+
+  document.getElementById('volunteer-report-btn').addEventListener('click', () => {
+    window.location.href = '/reports/volunteer-report';
+  });
+
+  document.getElementById('donor-report-btn').addEventListener('click', () => {
+    window.location.href = '/reports/donor-report';
+  });
+
+  document.getElementById('organization-report-btn').addEventListener('click', () => {
+    window.location.href = '/reports/organization-report';
+  });
+
+  document.getElementById('single-donor-report-btn').addEventListener('click', () => {
+    const input = document.getElementById('single-donor-id');
+    const donorId = input.value;
+    if (!donorId) {
+      alert("Podaj donor_id!");
+      return;
+    }
+    window.location.href = `/reports/single-donor-report?donor_id=${donorId}`;
+  });
+</script>
+{% endblock %}
